@@ -16,7 +16,7 @@ public class MainActivity extends Activity {
 	private Bitmap mCurPageBitmap, mNextPageBitmap;
 	private Canvas mCurpageCanvas, mNextPageCanvas;
 	private BookPageFactory mBookPagefactory;// 书页工厂类
-	public String bookFilePath = null;
+	public String bookFilePath = "/sdcard/abc.txt";
 
 	@SuppressLint("WrongCall")
 	@Override
@@ -62,7 +62,28 @@ public class MainActivity extends Activity {
 					if(event.getAction()==MotionEvent.ACTION_DOWN){
 						mPageWidget.abortAnimation();
 						mPageWidget.calcCornerXY(event.getX(), event.getY());
+						
+						mBookPagefactory.onDraw(mCurpageCanvas);
+						if(mPageWidget.DragToRight()){
+							
+							mBookPagefactory.prePage();
+							//如果为第一页不响应触摸事件
+							if(mBookPagefactory.isfistPage()){
+								return false;
+							}
+							//否则为在下一页画布上写入内容
+							mBookPagefactory.onDraw(mNextPageCanvas);
+						}else{
+							mBookPagefactory.nextPage();
+							
+							if (mBookPagefactory.islastPage())
+								return false;
+							mBookPagefactory.onDraw(mNextPageCanvas);
+						}
+						mPageWidget.setBitmaps(mCurPageBitmap, mNextPageBitmap);
 					}
+			 		ret=mPageWidget.doTouchEvent(event);
+			 		return ret;
 				}
 
 				return false;
